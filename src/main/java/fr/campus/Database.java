@@ -1,6 +1,8 @@
 package fr.campus;
 
 import com.mysql.cj.jdbc.Driver;// j'etablis la connection au serveur mysql
+
+import java.io.*;
 import java.util.ArrayList; // ça me permet d'utiliser la fonction liste de tableau
 import com.mysql.cj.jdbc.Driver;// j'etablis la connection au serveur mysql
 import java.sql.Connection;// j'etablis la connection au serveur mysql avec le driver manager
@@ -9,11 +11,13 @@ import java.sql.Statement;// je prepare la ou les requete(s)
 import java.sql.ResultSet;// j'execute une requete
 import java.sql.*;
 import java.util.ArrayList;
+import java.io.FileReader;
+import java.util.Properties;
 
 public class Database {
 
 
-    public static Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException, IOException {
 
         Driver pilote = new Driver(); // on créer le driver
         DriverManager.registerDriver(pilote); // on ajoute le driver à la liste des drivers de java ce qui permet de pouvoir interagir avec le driver qui lui interagis avec la base de données
@@ -23,11 +27,18 @@ public class Database {
         String port = "3306";
         String nomDeLaBaseDeDonee = "Heroes";
 
+        InputStream env = new FileInputStream(".env");
+        Properties properties = new Properties();
+        properties.load(env);
+        //load dans Properties
+        String username = properties.getProperty("database.username");
+        String password = properties.getProperty("database.password");
+
         // j'etablis la connection au serveur mysql avec le driver manager les argument url correspond à l'adresse ou ce trouve ma bbd,
         // ma fonction connection est composée de 3 arguments : une url, nom utilisateur, et un mot de passe
         // l'url et lui même composée de 4 partie : le protocole, l'adresse ip, le port, le nom de la bdd
 
-        return DriverManager.getConnection(protocole + "://" + adresseIP + ":" + port + "/" + nomDeLaBaseDeDonee, "root", "456789");
+        return DriverManager.getConnection(protocole + "://" + adresseIP + ":" + port + "/" + nomDeLaBaseDeDonee, username, password);
     }
 
     public static ArrayList<Personnage> getHeroes() { //c'est la fonction qui me retourne la liste des éléments compris dans mon tableau
